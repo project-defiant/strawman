@@ -1,0 +1,5 @@
+"""Metadata"""
+
+
+class EvidenceMetadata:
+    pass
