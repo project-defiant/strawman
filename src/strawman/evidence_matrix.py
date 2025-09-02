@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from enum import Enum
+
+from pydantic import BaseModel
 from sortedcontainers import SortedSet
 
 
@@ -34,11 +37,11 @@ class EvidenceMatrix:
 class EvidenceMatrixEntry:
     """Evidence Matrix Entry."""
 
-    def __init__(self, variant: Variant, locus: Locus, gene: Gene) -> None:
+    def __init__(self, variant: Variant, gene: Gene, locus: Locus) -> None:
         """Initialize Evidence Matrix Entry."""
-        self.variant = variant
-        self.locus = locus
-        self.gene = gene
+        self.variant: Variant = variant
+        self.locus: Locus = locus
+        self.gene: Gene = gene
         self.variant_centric_evidence: SortedSet = SortedSet()
         self.gene_centric_evidence: SortedSet = SortedSet()
         self.integration: SortedSet = SortedSet()
@@ -60,20 +63,56 @@ class EvidenceMatrixEntry:
         return hash((self.variant, self.locus, self.gene))
 
 
-class Evidence:
-    pass
+class Evidence(BaseModel):
+    """Evidence."""
+
+    name: str
+    id: str
 
 
-class VariantEvidence(Evidence):
-    pass
+class VariantEvidence(Enum):
+    """Variant Cenrtric Evidence."""
+
+    LD = Evidence(name="Linkage Disequilibrium", id="LD")
+    FM = Evidence(name="Finemapping and credible sets", id="FM")
+    COLOC = Evidence(name="Colocalization", id="COLOC")
+    QTL = Evidence(name="Molecular QTL", id="QTL")
+    REG = Evidence(name="Regulatory region", id="REG")
+    CHR = Evidence(name="Chromatin interaction", id="3D")
+    FUNC = Evidence(name="Predicted functional impact", id="FUNC")
+    PROX = Evidence(name="Proximity to gene (distance)", id="PROX")
+    GWAS = Evidence(name="Genome-wide association (GWAS) signal", id="GWAS")
+    PHEWAS = Evidence(name="PheWAS (Phenome-Wide Association Study)", id="PHEWAS")
+    CROSSP = Evidence(name="Cross-phenotype", id="CROSSP")
+    LIT = Evidence(name="Literature curation", id="LIT")
+    DB = Evidence(name="Association from curated database", id="DB")
 
 
-class GeneEvidence(Evidence):
-    pass
+class GeneEvidence(Enum):
+    """Gene Centric Evidence."""
+
+    PPI = Evidence(name="Protein-protein interaction", id="PPI")
+    SET = Evidence(name="Pathway or gene sets", id="SET")
+    GENEBASE = Evidence(name="Gene-based association", id="GENEBASE")
+    EXP = Evidence(name="Expression", id="EXP")
+    PERTURB = Evidence(name="Perturbation", id="PERTURB")
+    KNOW = Evidence(name="Biological Knowledge Inference", id="KNOW")
+    MR = Evidence(name="Mendelian Randomization (MR)", id="MR")
+    TPWAS = Evidence(
+        name="Genetically predicted trait association (TWAS/PWAS)", id="TPWAS"
+    )
+    DRUG = Evidence(name="Drug related", id="DRUG")
+    CROSSP = Evidence(name="Cross-phenotype", id="CROSSP")
+    LIT = Evidence(name="Literature curation", id="LIT")
+    DB = Evidence(name="Association from curated database", id="DB")
 
 
 class Integration:
     pass
+
+
+class EvidenceCategory(Enum):
+    """Evidence Category."""
 
 
 class Variant:
