@@ -21,14 +21,7 @@ def _():
     sumstat_path = "data/GCST90132315.h.tsv.gz"
     evidence_path = "data/cardiogram_165undefined_filtered.csv"
     target_path = "data/target"
-    return evidence_path, sumstat_path, target_path
-
-
-@app.cell
-def _(pl, target_path):
-    target = pl.read_parquet(target_path).select("id", "approvedSymbol")
-    target
-    return
+    return (evidence_path,)
 
 
 @app.cell
@@ -48,20 +41,106 @@ def _(evidence_path, pl):
         pl.col("Most likely causal gene").alias("geneName"),
         pl.col("UKBB PheWAS Diseases").alias("UKBBPheWASDiseases"),
         pl.col("UKBB PheWAS Continuous traits").alias("UKBBPheWASContinuousTraits"),
-    
-    
+
+
     )
     evidence
     return
 
 
 @app.cell
-def _(pl, sumstat_path):
-    sumstats = pl.read_csv(sumstat_path, separator="\t", infer_schema_length=10000).select(
-        pl.concat_str(pl.col("chromosome"), pl.lit(":"), pl.col("base_pair_location"), pl.lit(":"), pl.col("other_allele"), pl.lit(":"), pl.col("effect_allele")).alias("hg38_variantId"),
+def _():
+    final_data_path = "data/final_evidence.tsv"
+    raw_evidence_parsed = "data/attempt2.parquet"
+    return final_data_path, raw_evidence_parsed
+
+
+@app.cell
+def _(pl, raw_evidence_parsed):
+    raw_evidence = pl.read_parquet(raw_evidence_parsed)
+    raw_evidence
+    return (raw_evidence,)
+
+
+@app.cell
+def _(pl, raw_evidence):
+    #Add proximity evidence
+    col_name = "PROX_nearest"
+    prox_evidence = raw_evidence.with_columns(
+        (pl.when(pl.col("nearestGene") == pl.col("geneName")).then(pl.lit("Y")).otherwise(pl.lit("N"))).alias(col_name)
+    ).select(col_name, "rsId")
+    return (prox_evidence,)
+
+
+@app.cell
+def _(pl, raw_evidence):
+    col_name_3 = "PHEWAS_UKBB-PheWAS-disease"
+    col_name2 = "PHWEAS_UKBB-PheWAS-continuous-trait"
+
+    phewas_evidence = raw_evidence.with_columns(
+        pl.col("UKBBPheWASDiseases").str.replace_all("<br>", ",").str.replace("\n", "").str.strip_suffix(",").alias(col_name_3),
+            pl.col("UKBBPheWASContinuousTraits").str.replace_all("<br>", ",").str.replace("\n", "").str.strip_suffix(",").alias(col_name2),
+        pl.col("rsId")
     )
-    sumstats
+    phewas_evidence
+    return (phewas_evidence,)
+
+
+@app.cell
+def _(pl):
+    vep_evidence = pl.read_csv("data/vep.tsv", separator="\t").filter(pl.col("r2") == "NA").select(pl.col("rsID").alias("rsId"), pl.col("Consequence"))
+    vep_evidence
+    return (vep_evidence,)
+
+
+@app.cell
+def _(pl):
+    fgwas_evidence = pl.read_csv("data/FGWAS.tsv", separator="\t", infer_schema_length=1000).select(pl.concat_str(pl.col("Chr"), pl.lit(":"),pl.col("Region_start"), pl.lit(":"), pl.col("Region_end")).alias("LocusRangehg19"), pl.col("Lead_variant_rsID").alias("rsId"))
+    fgwas_evidence
     return
+
+
+@app.cell
+def _(final_data_path, phewas_evidence, pl, prox_evidence, vep_evidence):
+    final_evidence = pl.read_csv(final_data_path, separator="\t").join(prox_evidence, how="inner", on="rsId").join(phewas_evidence, how="inner", on="rsId").join(vep_evidence, on="rsId", how="left").select(
+        pl.col("variantId"),
+        pl.col("rsId"),
+        pl.col("ensemblGeneId"),
+        pl.col("geneName"),
+        pl.col("variantId").alias("locusId"),
+        pl.col("GWAS_pvalue"),
+        pl.col("GWAS_se"),
+        pl.col("GWAS_beta"),
+        pl.col("PROX_nearest"),
+        pl.col("FGWAS_Fine-mapping-PIP").alias("FM_functional-fine-mapping-PIP"),
+        pl.col("PHEWAS_UKBB-PheWAS-disease"),
+        pl.col("PHWEAS_UKBB-PheWAS-continuous-trait"),
+        pl.col("Consequence").alias("FUNC_vep")
+    )
+    pl.col("")
+    final_evidence
+    return (final_evidence,)
+
+
+@app.cell
+def _(final_evidence):
+    final_evidence
+    return
+
+
+@app.cell
+def _(final_evidence):
+    final_evidence.write_csv("data/final_evidence.tsv", separator="\t")
+    return
+
+
+app._unparsable_cell(
+    r"""
+    Gout (+) ,Hypercholesterolemia (+)
+
+    """,
+    name="_"
+)
 
 
 if __name__ == "__main__":

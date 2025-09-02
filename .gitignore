@@ -26,3 +26,6 @@ interrogate_badge.svg
 # data
 data/
 *.pyc
+
+# MAC
+.DS_Store/
