@@ -1,0 +1,239 @@
+# Gwas_variant_gene_locus
+gwas:
+  source: "GCST90132314"
+
+trait:
+  id: "EFO_0001645"
+  description: "Coronary artery disease"
+  mapping: "coronary artery disease"
+
+variant:
+  type: "lead"
+  genome_build: "GRCh38"
+  description: "The primary variant is the variant with the most significant association p-value in the study."
+
+gene:
+  id_source_version: "Ensembl v95"
+  symbol_source_version: "2025-08-29 10:05:41 UTC"
+
+locus:
+  type: "credible set"
+
+# Evidence
+evidence:
+  - evidence_type: "GWAS"
+    evidence_category: "GWAS_signal"
+    evidence_abbreviation: "GWAS"
+    evidence_class: "variant-centric"
+    source:
+      col:
+        - header: "GWAS_pvalue"
+          description: "p-value from GWAS study"
+  
+  - evidence_type: "Proximity"
+    evidence_category: "Proximity_to_gene"
+    evidence_abbreviation: "PROX"
+    evidence_class: "variant-centric"
+    source:
+      col:
+        - header: "PROX_nearest_gene"
+          description: "indicates whether the gene is the nearest to the variant"
+
+  - evidence_type: "Functional_prediction"
+    evidence_category: "predicted_functional_impact"
+    evidence_abbreviation: "FUNC"
+    evidence_class: "variant-centric"
+    source:
+      col:
+        - header: "FUNC_CADD"
+          description: "CADD-predicted functional impact score of the variant"
+    software_name: "CADD"
+    software_version: "v1.6"
+    software_url: "https://cadd.gs.washington.edu/"
+
+  - evidence_type: "eQTL"
+    evidence_category: "molecular_qtl"
+    evidence_abbreviation: "QTL"
+    evidence_class: "variant-centric"
+    source:
+      col:
+        - header: "QTL_eQTL-pancreas (p_value)"
+          description: "p-value from eQTL analysis in pancreas tissue"
+        - header: "QTL_eQTL-pancreas (CI)"
+          description: "confidence interval from eQTL analysis in pancreas tissue"
+      biosample:
+        name: "GTEx v10 pancreas"
+        tissue: "pancreas"
+        sample_origin: "primary tissue"
+        life_stage: "adult"
+        sex: "mixed"
+        age: "mixed"
+        species: "Homo sapiens"
+        description: "Bulk pancreas tissue samples from healthy postmortem adult human donors in GTEx v10. Used for eQTL discovery. Samples span male and female donors aged approximately 20–70 years. No treatment applied."
+    software_name: "FastQTL"
+    software_threshold: "p_value < 0.05"
+    software_version: "v1.0"
+    software_doi: "10.1093/BIOINFORMATICS/BTV722"
+    software_url: "https://github.com/francois-a/fastqtl"
+
+  - evidence_type: "Fine-mapping"
+    evidence_category: "fine_mapping"
+    evidence_abbreviation: "FM"
+    evidence_class: "variant-centric"
+    source:
+      col:
+        - header: "FM_credible_set_ID"
+          description: "Identifier for the 95% credible set containing likely causal variants"
+        - header: "FM_Fine-mapping-PIP"
+          description: "Posterior inclusion probability that the variant is causal"
+    software_name: "FINEMAP"
+    software_threshold: "95%"
+    software_version: "v1.0"
+    software_url: "http://www.christianbenner.com/"
+
+  - evidence_type: "Colocalisation"
+    evidence_category: "colocalisation"
+    evidence_abbreviation: "COLOC"
+    evidence_class: "variant-centric"
+    source:
+      col:
+        - header: "COLOC_PPH4"
+          description: "Posterior probability that both traits share a causal variant (PPH4)"
+    software_name: "coloc"
+    software_threshold: "PPH4 > 0.8"
+    software_version: "v3.2"
+    software_url: "https://github.com/chr1swallace/coloc"
+
+  - evidence_type: "Expression"
+    evidence_category: "expression"
+    evidence_abbreviation: "EXP"
+    evidence_class: "gene-centric"
+    source:
+      col:
+        - header: "EXP_AdiposeTissue (RPMK or TPM)"
+          description: "Gene expression level (TPM or RPKM) in adipose tissue"
+        - header: "EXP_pancreas (RPMK or TPM)"
+          description: "Gene expression level (TPM or RPKM) in pancreas"
+      biosample:
+        - name: "GTEx v8 adipose tissue"
+          tissue: "adipose tissue"
+          sample_origin: "primary tissue"
+          disease: "healthy"
+          life_stage: "adult"
+          treatment: "none"
+          sex: "mixed"
+          age: "mixed"
+          species: "Homo sapiens"
+          description: "Primary adipose tissue samples from healthy adult human donors in GTEx v6. Samples span both sexes and various adult ages. Used to quantify gene expression (TPM/RPKM)."
+        - name: "GTEx v8 pancreas"
+          tissue: "pancreas"
+          sample_origin: "primary tissue"
+          cell_type: null
+          cell_line: null
+          disease: "healthy"
+          life_stage: "adult"
+          treatment: "none"
+          sex: "mixed"
+          age: "mixed"
+          species: "Homo sapiens"
+          description: "Bulk pancreas tissue samples from healthy adult human donors in GTEx v6. Used to quantify gene expression levels. Donors span multiple ages and both sexes."
+    software_threshold: "TPM > 1"
+    source_name: "GTEx RNA-seq"
+    source_version: "v8"
+    source_url: "https://gtexportal.org/"
+
+  - evidence_type: "Perturbation"
+    evidence_category: "perturbation"
+    evidence_abbreviation: "PERTURB"
+    evidence_class: "gene-centric"
+    source:
+      col:
+        - header: "PERTURB_mouse"
+          description: "p-value from mouse gene knockout experiment"
+      biosample:
+        name: "IMPC mouse knockout models"
+        tissue: "multiple"
+        sample_origin: "model organism"
+        disease: "knockout"
+        treatment: "gene knockout"
+        sex: "mixed"
+        age: "mixed"
+        species: "Mus musculus"
+        description: "Adult male and female mice with single-gene knockouts from the IMPC project (v2.0). Used to evaluate phenotypic consequences of gene disruption across multiple tissues."
+    software_threshold: "p < 0.05"
+    source_name: "IMPC"
+    source_version: "v2.0"
+    source_url: "https://www.mousephenotype.org/"
+
+  - evidence_type: "Biological_knowledge"
+    evidence_category: "biological_knowledge_inference"
+    evidence_abbreviation: "KNOW"
+    evidence_class: "gene-centric"
+    source:
+      col:
+        - header: "KNOW"
+          description: "Inferred gene–phenotype relationship based on prior biological knowledge"
+
+  - evidence_type: "Literature"
+    evidence_category: "literature_curation"
+    evidence_abbreviation: "LIT"
+    evidence_class: "gene-centric"
+    source:
+      col:
+        - header: "LIT"
+          description: "Curated textual evidence linking gene to phenotype"
+        - header: "LIT_PMID"
+          description: "PubMed ID of the supporting publication"
+
+  - evidence_type: "Drug"
+    evidence_category: "drug_related"
+    evidence_abbreviation: "DRUG"
+    evidence_class: "gene-centric"
+    source:
+      col:
+        - header: "DRUG"
+          description: "Drugs reported to target or modulate the gene in DGIdb"
+    source_name: "DGIdb"
+    source_version: "v4.2"
+    source_url: "https://www.dgidb.org/"
+    
+  
+  - evidence_type: "TWAS"
+    evidence_category: "genetically_predicted_trait_association"
+    evidence_abbreviation: "TPWAS"
+    evidence_class: "gene-centric"
+    source:
+      col:
+        - header: "TPWAS_TWAS"
+          description: "p-value from TWAS study"
+    software_threshold: "Bonferroni corrected p < 0.05"
+    source_name: "webTWAS"
+    source_version: "w00620 / v2.3"
+    source_url: "http://www.webtwas.net/#/trait/7867"
+
+
+# Intergation
+integration:
+  - integration_analysis: "pops"
+    integration_mode: "computational"
+    col:
+      header: "INT_pops"
+      description: "Integrated score based on multiple evidence types for the prioritised gene"
+      data_type: float
+    evidence_integrated:
+      evidence_stream_type: ["fun_prediction", "eQTL", "pQTL", "fine_map", "3d", "PheWAS", "twas"]
+    software_name: "PoPS"
+    software_version: "v1.0"
+    software_url: "https://github.com/FinucaneLab/pops"
+    software_doi: "10.1038/s41588-023-01443-6"
+
+  - integration_analysis: "author_score"
+    integration_mode: "manual"
+    col:
+      header: "INT_Combined prediction (author score)"
+      description: "Combined prediction based on manual review of all evidence types and PoPs output"
+      data_type: string
+    evidence_integrated:
+      evidence_stream_type: ["eQTL", "finemap_EU"]
+      integrated_analysis: "pops"
+      method: "Combined prediction based on manual review of all evidence types and PoPs output, and classify the strength (weak, medium, strong) based on professional judgement"
