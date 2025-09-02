@@ -24,4 +24,5 @@ interrogate_badge.svg
 
 
 # data
-data
+data/
+*.pyc
